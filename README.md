@@ -12,7 +12,7 @@
 4. Clone your forked repo into your local machine, use your user instead of `username`:
 ```sh
 git clone git@github.com:username/cuda-2026.git
-cd gpu-2025
+cd cuda-2026
 ```
 5. Go to your group folder, e.g.:
 ```sh
