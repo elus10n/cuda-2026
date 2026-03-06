@@ -19,48 +19,38 @@ std::vector<float> NaiveGemmOMP(const std::vector<float>& a,
     const std::vector<float>& b,
     int n) {
 
+    // результирующая матрица
     std::vector<float> answer(n * n, 0.0f);
 
-    // блочное множение 
-    const int bl_size = 64;
-    const int bl_count = n / bl_size;
-
-    // распараллеливаем внешние блоки
+    // распараллеливаем внешний цикл по строкам
+    // порядок i -> k -> j для cache-friendly доступа
 #pragma omp parallel for
-    for (int bl_j = 0; bl_j < bl_count; bl_j++) {
-        for (int bl_k = 0; bl_k < bl_count; bl_k++) {
-            for (int bl_i = 0; bl_i < bl_count; bl_i++) {
+    for (int i = 0; i < n; i++) {
+        for (int k = 0; k < n; k++) {
 
-                // j - определяет строку в a
-                for (int j = bl_j * bl_size; j < (bl_j + 1) * bl_size; j++) {
-                    // k - определяет элемент, который умножаем
-                    for (int k = bl_k * bl_size; k < (bl_k + 1) * bl_size; k++) {
+            // a[i * n + k] - не зависит от j
+            // вытаскиваем из внутреннего цикла, чтобы не считать каждый раз
+            float a_ik = a[i * n + k];
 
-                        // a[j * n + k] - не зависит от i
-                        // можно посчитать 1 раз (вынести из цикла по i)
-                        float a_jk = a[j * n + k];
+            // индексы для удобства
+            int res_row_idx = i * n;
+            int b_row_idx = k * n;
 
-                        // i - определяет столбец в b
-                        
-
-                        // для разворачивания цикла по i
-                        int row_idx = j * n;
-                        int b_idx = k * n;
-
-                        // веторизация цикла
-                        #pragma omp simd
-                        for (int i = bl_i * bl_size; i < (bl_i + 1) * bl_size; i += 4) {
-                            // разворачивание цикла на 4
-                            answer[i + row_idx] += a_jk * b[i + b_idx];
-                            answer[i + 1 + row_idx] += a_jk * b[i + 1 + b_idx];
-                            answer[i + 2 + row_idx] += a_jk * b[i + 2 + b_idx];
-                            answer[i + 3 + row_idx] += a_jk * b[i + 3 + b_idx];
-                        }
-                    }
-                }
+            // векторизация и развертывание цикла по j
+            // идем по строке матрицы B и C последовательно
+#pragma omp simd
+            for (int j = 0; j < n; j += 4) {
+                // разворачивание цикла на 4 для помощи компилятору
+                
+                answer[res_row_idx + j] += a_ik * b[b_row_idx + j];
+                answer[res_row_idx + j + 1] += a_ik * b[b_row_idx + j + 1];
+                answer[res_row_idx + j + 2] += a_ik * b[b_row_idx + j + 2];
+                answer[res_row_idx + j + 3] += a_ik * b[b_row_idx + j + 3];
             }
+
+            // так как n - степень двойки, остатки можно не проверять
         }
     }
-    
+
     return answer;
 }
