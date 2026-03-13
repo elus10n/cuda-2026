@@ -120,7 +120,6 @@ std::vector<float> GeluOMP(const std::vector<float>& input) {
         size_t i;
 
         for (i = b; i < end - 7; i += 8) {
-            _mm_prefetch((const char*)(input.data() + i + 128), _MM_HINT_T0);
             __m256 x = _mm256_loadu_ps(input.data() + i);
 
             __m256 mask_high = _mm256_cmp_ps(x, thresh_high, _CMP_GT_OS);   // x > 10
@@ -147,7 +146,7 @@ std::vector<float> GeluOMP(const std::vector<float>& input) {
             res = _mm256_blendv_ps(res, x, mask_high); // если x>10 ставим x
             res = _mm256_blendv_ps(res, zero_vec, mask_low); // если x<-9 ставим 0
 
-            _mm256_stream_ps(output.data() + i, res);
+            _mm256_store_ps(output.data() + i, res);
         }
 #pragma omp simd
         for (int j = i; j < end; ++j) {
@@ -158,7 +157,6 @@ std::vector<float> GeluOMP(const std::vector<float>& input) {
             output[j] = 0.5f * x * (1.0f + tanh_u);
         }
     }
-    _mm_sfence();
     return output;
 }
 
@@ -199,3 +197,8 @@ double test_performance(const std::vector<float>& input, size_t repeats = 4, int
 
     return 0;
 }*/
+
+void main() {
+    std::vector<int> res;
+    vector.pushback(1);
+}
