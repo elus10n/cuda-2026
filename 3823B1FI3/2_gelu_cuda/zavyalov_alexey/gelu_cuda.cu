@@ -29,13 +29,13 @@ std::vector<float> GeluCUDA(const std::vector<float>& input) {
 
     gelu_kernel<<<num_blocks, block_size>>>(a_gpu_first_half, result_gpu_first_half, n / 2);
 
-    cudaMemcpy(res.data(), result_gpu_first_half, n / 2 * sizeof(float), cudaMemcpyDeviceToHost); // надо сделать асинк
+    cudaMemcpyAsync(res.data(), result_gpu_first_half, n / 2 * sizeof(float), cudaMemcpyDeviceToHost, strm); // надо сделать асинк
 
-    cudaStreamSynchronize(strm);
 
     float *result_gpu_second_half;
     cudaMalloc((void **)&result_gpu_second_half, n / 2 * sizeof(float));
 
+    cudaStreamSynchronize(strm);
 
     gelu_kernel<<<num_blocks, block_size>>>(a_gpu_second_half, result_gpu_second_half, n / 2);
 
