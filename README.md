@@ -468,6 +468,7 @@ std::vector<float> GeluOCL(const std::vector<float>& input, int platform) {
 |3823B1FI3|kutergin_valentin|0.1806|3|
 |3823B1FI3|votincev_dmitri|0.2079|2|
 |3823B1FI3|baldin_andrew|0.2152|1|
+|3823B1FI3|lukin_ivan|0.2165|4|
 |**REF**|**REF**|**0.2167**|**-**|
 
 ## 3_naive_gemm_omp (1024 elements)
@@ -536,7 +537,7 @@ std::vector<float> GeluOCL(const std::vector<float>& input, int platform) {
 |3823B1FI3|kurpiakov_alexei|0/9|0|
 |3823B1FI3|kutergin_valentin|2/9|120|
 |3823B1FI3|levonychev_ivan|1/9|53|
-|3823B1FI3|lukin_ivan|3/9|170|
+|3823B1FI3|lukin_ivan|4/9|228|
 |3823B1FI3|papulina_yuliya|3/9|161|
 |3823B1FI3|romanov_artem|3/9|180|
 |3823B1FI3|votincev_dmitri|3/9|180|
